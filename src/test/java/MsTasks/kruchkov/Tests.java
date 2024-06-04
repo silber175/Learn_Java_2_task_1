@@ -2,8 +2,6 @@ package MsTasks.kruchkov;
 
 import org.junit.Test;
 
-
-
 public class Tests {
 @Test
 // Account creating with wrong nam
