@@ -1,14 +1,21 @@
 package MsTasks.kruchkov;
 
+import java.util.ArrayList;
+
 public class CurrCount {
     private String currency;
     private int curCount;
 
     public CurrCount(String currency, int curCount) {
-        String[] validCurrArr = {"USD", "EUR", "GBP","JPY", "RUR"};
+        ArrayList<String> validCurrArr = new ArrayList<String>();
+        validCurrArr.add("USD");
+        validCurrArr.add("EUR");
+        validCurrArr.add( "GBP");
+        validCurrArr.add("JPY");
+        validCurrArr.add( "RUR");
         boolean vFound=false;
-        for (int ii=0;ii < validCurrArr.length;ii++) {
-            if (currency == validCurrArr[ii]) {
+        for (int ii=0;ii < validCurrArr.size();ii++) {
+            if (currency == validCurrArr.get(ii)) {
                 vFound = true;
                 break;
             }

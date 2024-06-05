@@ -2,6 +2,8 @@ package MsTasks.kruchkov;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 public class Tests {
 @Test
 // Account creating with wrong nam
@@ -33,11 +35,11 @@ public void AccCreate() {
 
         vAccount.changeBal(vCurrCountUsd);
         vAccount.changeBal(vCurrCountEur);
-        CurrCount[] vCurrCount = vAccount.getAccCurrCount();
+        ArrayList<CurrCount> vCurrCount = vAccount.getAccCurrCount();
         boolean vFoundUsd = false;
-        for(int ii=0;ii< vCurrCount.length;ii++){
-            if (vCurrCount[ii].getCurrency().equals("USD") &&
-                    vCurrCount[ii].getCurCount() == 2000)   {
+        for(int ii=0;ii< vCurrCount.size();ii++){
+            if (vCurrCount.get(ii).getCurrency().equals("USD") &&
+                    vCurrCount.get(ii).getCurCount() == 2000)   {
                 vFoundUsd = true;
             }
             if(!vFoundUsd )    {
@@ -46,9 +48,9 @@ public void AccCreate() {
             }
         }
         boolean vFoundEur = false;
-        for(int ii=0;ii< vCurrCount.length;ii++){
-            if (vCurrCount[ii].getCurrency().equals("EUR") &&
-                    vCurrCount[ii].getCurCount() == 1000)   {
+        for(int ii=0;ii< vCurrCount.size();ii++){
+            if (vCurrCount.get(ii).getCurrency().equals("EUR") &&
+                    vCurrCount.get(ii).getCurCount() == 1000)   {
                 vFoundUsd = true;
             }
             if(!vFoundUsd )    {
@@ -100,14 +102,14 @@ public void AccCreate() {
         vCurrCountRur = new CurrCount("RUR",300);
         vAccount.changeBal(vCurrCountRur);
         vAccount.undo();
-        CurrCount[] vCurrCount = vAccount.getAccCurrCount();
+        ArrayList<CurrCount> vCurrCount = vAccount.getAccCurrCount();
 
         boolean vFoundUsd = false;
-        for(int ii=0;ii<vCurrCount.length;ii++)  {
-            if (vCurrCount[ii].getCurrency().equals("RUR") )    {
+        for(int ii=0;ii<vCurrCount.size();ii++)  {
+            if (vCurrCount.get(ii).getCurrency().equals("RUR") )    {
                 vFoundUsd = true;
 
-                if (vCurrCount[ii].getCurCount() != 100) {
+                if (vCurrCount.get(ii).getCurCount() != 100) {
                     throw new RuntimeException("Error test : метод undo неверно откатывает 1 раз колчество валюты");
                 }
             }
@@ -126,8 +128,8 @@ public void AccCreate() {
         vAccount.undo();
         vCurrCount = vAccount.getAccCurrCount();
         vFoundUsd = false;
-        for(int ii=0;ii<vCurrCount.length;ii++)  {
-            if (vCurrCount[ii].getCurrency().equals("RUR") )    {
+        for(int ii=0;ii<vCurrCount.size();ii++)  {
+            if (vCurrCount.get(ii).getCurrency().equals("RUR") )    {
                 vFoundUsd = true;
 
 
@@ -141,6 +143,7 @@ public void AccCreate() {
     }
     // Проверка метода сохранения
     public void savePointCheck()  {
+        ArrayList<AccSaver> accSavers = new ArrayList<AccSaver>();
         Account vAccount = new Account("Сидоров И.К");
         CurrCount vCurrCountUsd = new CurrCount("USD",2000);
         CurrCount vCurrCountEur = new CurrCount("EUR",1000);
@@ -157,7 +160,18 @@ public void AccCreate() {
 
         CurrCount vCurrCountEur2 = new CurrCount("EUR",1500);
         vAccount.changeBal(vCurrCountEur2);
-        save(vAccount, "sp1");
+        String aSaveName ="sp1";
+
+
+
+        for (int ii = 0; ii < accSavers.size(); ii++) {
+            if (accSavers.get(ii).getSaveName().equals(aSaveName)) {
+                throw new IllegalArgumentException("С  именем "+aSaveName+" savepoint уже существует ");
+            }
+        }
+        AccSaver vAccSaver =  save(vAccount, aSaveName);
+        accSavers.add(vAccSaver);
+
         vAccount.setName("Иван Васильевич");
 
 
@@ -169,24 +183,29 @@ public void AccCreate() {
 
 
         vAccount.changeBal(vCurrCountUsd);
-
-        save(vAccount, "sp2");
-
+        aSaveName = "sp2";
+        for (int ii = 0; ii < accSavers.size(); ii++) {
+            if (accSavers.get(ii).getSaveName().equals(aSaveName)) {
+                throw new IllegalArgumentException("С  именем "+aSaveName+" savepoint уже существует ");
+            }
+        }
+        vAccSaver =  save(vAccount, aSaveName);
+        accSavers.add(vAccSaver);
         vAccount.setName("Pol Robson");
 
 
 
-        restore(vAccount,"sp1");
+        restore(vAccount,"sp1", accSavers);
         if (!vAccount.getName().equals("Сидоров И.К") )   {
             throw new RuntimeException("Error test : метод save  неверно сохраняет наименование");
         }
-        CurrCount[] vCurrCount = vAccount.getAccCurrCount();
+        ArrayList<CurrCount> vCurrCount = vAccount.getAccCurrCount();
         boolean vFoundUsd = false;
-        for(int ii=0;ii<vCurrCount.length;ii++)  {
-            if (vCurrCount[ii].getCurrency().equals("USD") )    {
+        for(int ii=0;ii<vCurrCount.size();ii++)  {
+            if (vCurrCount.get(ii).getCurrency().equals("USD") )    {
                 vFoundUsd = true;
 
-                if (vCurrCount[ii].getCurCount() != 2000) {
+                if (vCurrCount.get(ii).getCurCount() != 2000) {
                     throw new RuntimeException("Error test : метод save неверно сохраняет колчество валюты");
                 }
             }
@@ -197,11 +216,11 @@ public void AccCreate() {
         }
 
         vFoundUsd = false;
-        for(int ii=0;ii<vCurrCount.length;ii++)  {
-            if (vCurrCount[ii].getCurrency().equals("EUR") )    {
+        for(int ii=0;ii<vCurrCount.size();ii++)  {
+            if (vCurrCount.get(ii).getCurrency().equals("EUR") )    {
                 vFoundUsd = true;
 
-                if (vCurrCount[ii].getCurCount() != 1500) {
+                if (vCurrCount.get(ii).getCurCount() != 1500) {
                     throw new RuntimeException("Error test : метод save неверно сохраняет колчество валюты");
                 }
             }
@@ -212,7 +231,7 @@ public void AccCreate() {
         }
 
 
-        restore(vAccount,"sp2");
+        restore(vAccount,"sp2", accSavers);
 
 
         if (!vAccount.getName().equals("Иван Васильевич") )   {
@@ -220,11 +239,11 @@ public void AccCreate() {
         }
         vCurrCount = vAccount.getAccCurrCount();
          vFoundUsd = false;
-        for(int ii=0;ii<vCurrCount.length;ii++)  {
-            if (vCurrCount[ii].getCurrency().equals("USD") )    {
+        for(int ii=0;ii<vCurrCount.size();ii++)  {
+            if (vCurrCount.get(ii).getCurrency().equals("USD") )    {
                 vFoundUsd = true;
 
-                if (vCurrCount[ii].getCurCount() != 6000) {
+                if (vCurrCount.get(ii).getCurCount() != 6000) {
                     throw new RuntimeException("Error test : метод save неверно сохраняет колчество валюты");
                 }
             }
@@ -235,11 +254,11 @@ public void AccCreate() {
         }
 
         vFoundUsd = false;
-        for(int ii=0;ii<vCurrCount.length;ii++)  {
-            if (vCurrCount[ii].getCurrency().equals("EUR") )    {
+        for(int ii=0;ii<vCurrCount.size();ii++)  {
+            if (vCurrCount.get(ii).getCurrency().equals("EUR") )    {
                 vFoundUsd = true;
 
-                if (vCurrCount[ii].getCurCount() != 3000) {
+                if (vCurrCount.get(ii).getCurCount() != 3000) {
                     throw new RuntimeException("Error test : метод save неверно сохраняет колчество валюты");
                 }
             }
@@ -252,14 +271,14 @@ public void AccCreate() {
 
 
     }
-    public static void save(AccSavable pAcnt, String aSaveName)  {
-        pAcnt.save(aSaveName);
+    public static AccSaver save(AccSavable pAcnt, String aSaveName)  {
+        return pAcnt.save(aSaveName);
     }
-    public  static void restore(AccSavable pAcnt, String aSaveName) {
-        pAcnt.restore(aSaveName);
+    public  static void restore(AccSavable pAcnt, String aSaveName, ArrayList<AccSaver> accSavers) {
+        pAcnt.restore(aSaveName, accSavers);
     }
     // Проверка метода undo при добавлении поля вид счета в класс Account
-    // После разкомментаривания  поля private String acntVid; прогнать тест еще раз
+    // При наличии поля private String acntType  тесты проходят
 
 
 

@@ -1,9 +1,12 @@
 package MsTasks.kruchkov;
 
+import java.util.ArrayList;
+
 public class KruchkovTask1 {
     public static void main(String[] args)
             throws CloneNotSupportedException
     {
+        ArrayList<AccSaver> accSavers = new ArrayList<AccSaver>();
 
         System.out.println("Task  call example");
         // Simple test
@@ -23,7 +26,8 @@ public class KruchkovTask1 {
         System.out.println("Before save point 1 "+vRes);
         System.out.println(vAccount.getName());
         CurrCount vCurrCountEur2 = new CurrCount("EUR",1500);
-        save(vAccount, "sp1");
+        AccSaver vAccSaver = save(vAccount, "sp1");
+        accSavers.add(vAccSaver);
         System.out.println("Call save point 1");
 
         vAccount.changeBal(vCurrCountEur2);
@@ -38,7 +42,8 @@ public class KruchkovTask1 {
         vRes = vAccount.printAccCurrCount() ;
         System.out.println("Before save point 2"+vRes);
         System.out.println(vAccount.getName());
-        save(vAccount, "sp2");
+        vAccSaver = save(vAccount, "sp2");
+        accSavers.add(vAccSaver);
         System.out.println("Call save point 2");
 
 
@@ -57,23 +62,22 @@ public class KruchkovTask1 {
         System.out.println("Before restore save points"+vRes);
         System.out.println(vAccount.getName());
 
-        restore(vAccount,"sp2");
+        restore(vAccount,"sp2", accSavers);
         System.out.println("Call restore save point 2");
         System.out.println("After restore save point 2"+vRes);
         System.out.println(vAccount.getName());
 
-        restore(vAccount,"sp1");
+        restore(vAccount,"sp1", accSavers);
         System.out.println("Call restore save point 1");
 
         System.out.println("After restore save point 1"+vRes);
         System.out.println(vAccount.getName());
     }
-    public static void save(AccSavable pAcnt, String aSaveName)  {
-        pAcnt.save(aSaveName);
+    public static AccSaver save(AccSavable pAcnt, String aSaveName)  {
+        return pAcnt.save(aSaveName);
     }
-    public  static void restore(AccSavable pAcnt, String aSaveName) {
-        pAcnt.restore(aSaveName);
+    public  static void restore(AccSavable pAcnt, String aSaveName, ArrayList<AccSaver> accSavers) {
+        pAcnt.restore(aSaveName, accSavers);
     }
-
 };
 
